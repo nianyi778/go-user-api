@@ -1,0 +1,157 @@
+# ================================
+# Go User API Docker Compose
+# ================================
+# 使用 Docker Compose 管理应用及其依赖服务
+#
+# 使用方法：
+#   启动所有服务：docker-compose up -d
+#   查看日志：docker-compose logs -f
+#   停止服务：docker-compose down
+#   重新构建：docker-compose up -d --build
+
+version: '3.8'
+
+services:
+  # ================================
+  # API 服务
+  # ================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+        BUILD_TIME: ${BUILD_TIME:-unknown}
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+    image: go-user-api:${VERSION:-latest}
+    container_name: go-user-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      # 应用配置
+      - APP_APP_MODE=release
+      - APP_APP_HOST=0.0.0.0
+      - APP_APP_PORT=8080
+      # 数据库配置（使用 MySQL）
+      - APP_DATABASE_DRIVER=mysql
+      - APP_DATABASE_MYSQL_HOST=mysql
+      - APP_DATABASE_MYSQL_PORT=3306
+      - APP_DATABASE_MYSQL_USERNAME=root
+      - APP_DATABASE_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-secret}
+      - APP_DATABASE_MYSQL_DATABASE=${MYSQL_DATABASE:-go_user_api}
+      # JWT 配置
+      - APP_JWT_SECRET=${JWT_SECRET:-your-super-secret-key-change-in-production}
+      # 日志配置
+      - APP_LOG_LEVEL=info
+      - APP_LOG_FORMAT=json
+    volumes:
+      # 挂载配置文件（可选）
+      - ./configs:/app/configs:ro
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 挂载数据目录（用于 SQLite）
+      - ./data:/app/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ================================
+  # MySQL 数据库
+  # ================================
+  mysql:
+    image: mysql:8.0
+    container_name: go-user-api-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-secret}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-go_user_api}
+      - MYSQL_USER=${MYSQL_USER:-appuser}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-apppassword}
+      # 设置字符集
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
+    volumes:
+      # 持久化数据
+      - mysql-data:/var/lib/mysql
+      # 初始化脚本（可选）
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ================================
+  # Redis 缓存（可选）
+  # ================================
+  redis:
+    image: redis:7-alpine
+    container_name: go-user-api-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - with-redis
+
+  # ================================
+  # Adminer - 数据库管理界面（开发环境）
+  # ================================
+  adminer:
+    image: adminer:latest
+    container_name: go-user-api-adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+    profiles:
+      - dev
+
+# ================================
+# 网络配置
+# ================================
+networks:
+  app-network:
+    driver: bridge
+    name: go-user-api-network
+
+# ================================
+# 数据卷配置
+# ================================
+volumes:
+  mysql-data:
+    name: go-user-api-mysql-data
+  redis-data:
+    name: go-user-api-redis-data

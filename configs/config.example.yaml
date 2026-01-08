@@ -1,0 +1,124 @@
+# ====================================
+# Go User API 配置文件示例
+# ====================================
+# 复制此文件为 config.yaml 并修改相应配置
+# cp config.example.yaml config.yaml
+
+# ----------------
+# 应用配置
+# ----------------
+app:
+  # 应用名称
+  name: "go-user-api"
+  # 运行模式: debug, release, test
+  mode: "debug"
+  # API 版本
+  version: "v1"
+
+# ----------------
+# 服务器配置
+# ----------------
+server:
+  # 监听地址
+  host: "0.0.0.0"
+  # 监听端口
+  port: 8080
+  # 读取超时（秒）
+  read_timeout: 10
+  # 写入超时（秒）
+  write_timeout: 10
+  # 优雅关闭等待时间（秒）
+  shutdown_timeout: 30
+
+# ----------------
+# 数据库配置
+# ----------------
+database:
+  # 数据库驱动: mysql, sqlite
+  driver: "sqlite"
+
+  # SQLite 配置（本地开发使用）
+  sqlite:
+    # 数据库文件路径
+    path: "./data/app.db"
+
+  # MySQL 配置（生产环境使用）
+  mysql:
+    host: "localhost"
+    port: 3306
+    username: "root"
+    password: "your_password_here"
+    database: "go_user_api"
+    # 字符集
+    charset: "utf8mb4"
+    # 解析时间
+    parse_time: true
+    # 时区
+    loc: "Local"
+
+  # 连接池配置
+  pool:
+    # 最大空闲连接数
+    max_idle_conns: 10
+    # 最大打开连接数
+    max_open_conns: 100
+    # 连接最大生存时间（分钟）
+    conn_max_lifetime: 60
+
+# ----------------
+# JWT 配置
+# ----------------
+jwt:
+  # JWT 密钥（生产环境请使用强密钥）
+  secret: "your-super-secret-jwt-key-change-in-production"
+  # 签发者
+  issuer: "go-user-api"
+  # Access Token 过期时间（小时）
+  access_token_expire: 24
+  # Refresh Token 过期时间（小时）
+  refresh_token_expire: 168
+
+# ----------------
+# 日志配置
+# ----------------
+log:
+  # 日志级别: debug, info, warn, error
+  level: "debug"
+  # 日志格式: json, console
+  format: "console"
+  # 是否输出到文件
+  file_enabled: false
+  # 日志文件路径
+  file_path: "./logs/app.log"
+  # 单个日志文件最大大小（MB）
+  max_size: 100
+  # 日志文件最大保留天数
+  max_age: 30
+  # 最大保留的旧日志文件数量
+  max_backups: 10
+  # 是否压缩旧日志文件
+  compress: true
+
+# ----------------
+# 安全配置
+# ----------------
+security:
+  # 密码加密成本（bcrypt）
+  bcrypt_cost: 10
+  # 允许的跨域来源（CORS）
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  # 是否启用 HTTPS 重定向
+  https_redirect: false
+  # 请求速率限制（每分钟）
+  rate_limit: 100
+
+# ----------------
+# 分页配置
+# ----------------
+pagination:
+  # 默认每页数量
+  default_page_size: 10
+  # 最大每页数量
+  max_page_size: 100

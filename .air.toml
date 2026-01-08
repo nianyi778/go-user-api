@@ -1,0 +1,82 @@
+# ================================
+# Air - 热重载配置文件
+# ================================
+# Air 是一个 Go 应用程序的实时重载工具
+# 当源代码发生变化时，自动重新编译并重启应用
+#
+# 安装: go install github.com/air-verse/air@latest
+# 使用: air 或 air -c .air.toml
+#
+# 文档: https://github.com/air-verse/air
+
+# 根目录，用于监视和运行应用程序
+root = "."
+
+# 临时目录，用于存放构建产物
+tmp_dir = "tmp"
+
+[build]
+# 构建命令
+cmd = "go build -o ./tmp/main ./cmd/api"
+# 运行的二进制文件
+bin = "./tmp/main"
+# 运行时的命令行参数
+args_bin = ["-config", "./configs/config.yaml"]
+
+# 监视文件扩展名
+include_ext = ["go", "tpl", "tmpl", "html", "yaml", "yml", "toml", "json"]
+# 排除的目录
+exclude_dir = ["assets", "tmp", "vendor", "testdata", "node_modules", "build", "dist", ".git", ".idea", ".vscode", "data", "logs"]
+# 排除的文件
+exclude_file = []
+# 排除正则表达式
+exclude_regex = ["_test\\.go$", "\\.pb\\.go$"]
+# 排除不变的目录
+exclude_unchanged = false
+# 跟随符号链接
+follow_symlink = false
+
+# 构建延迟（毫秒）
+# 在检测到变化后等待一段时间再构建，避免频繁构建
+delay = 500
+
+# 发生构建错误时是否停止运行旧的二进制文件
+stop_on_error = false
+# 是否将日志写入文件
+log = "tmp/air.log"
+# 是否在日志中包含时间戳
+poll = false
+# 轮询间隔（毫秒），仅在 poll = true 时生效
+poll_interval = 500
+
+# 发送中断信号（用于优雅关闭）
+send_interrupt = true
+# 发送中断信号后等待的时间（秒）
+kill_delay = 2
+
+# 环境变量
+[build.env]
+APP_APP_MODE = "debug"
+
+[color]
+# 自定义日志颜色
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[log]
+# 是否显示日志时间
+time = true
+# 是否只显示主日志
+main_only = false
+
+[misc]
+# 退出时是否清理临时目录
+clean_on_exit = true
+
+[screen]
+# 重建时是否清屏
+clear_on_rebuild = true
+# 是否保持滚动位置
+keep_scroll = true

@@ -1,0 +1,150 @@
+# ====================
+# Go 编译产物
+# ====================
+# 二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件
+*.test
+
+# 输出目录
+/build/
+/bin/
+/out/
+/dist/
+
+# ====================
+# Go 特定文件
+# ====================
+# Go workspace 文件
+go.work
+go.work.sum
+
+# vendor 目录（如果使用 go mod vendor）
+# /vendor/
+
+# ====================
+# 测试和覆盖率
+# ====================
+coverage.out
+coverage.html
+*.cover
+*.prof
+*.pprof
+
+# ====================
+# IDE 和编辑器
+# ====================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# GoLand / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ====================
+# 操作系统
+# ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ====================
+# 配置文件
+# ====================
+# 本地配置（保留示例文件）
+configs/config.yaml
+configs/config.local.yaml
+configs/*.local.yaml
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+*.env
+
+# ====================
+# 日志文件
+# ====================
+logs/
+*.log
+*.log.*
+
+# ====================
+# 数据库
+# ====================
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# ====================
+# 临时文件
+# ====================
+tmp/
+temp/
+.tmp/
+.temp/
+.cache/
+
+# ====================
+# 开发工具
+# ====================
+# Air (热重载)
+tmp/
+
+# Delve (调试器)
+debug
+__debug_bin
+
+# ====================
+# Docker
+# ====================
+.docker/
+
+# ====================
+# 其他
+# ====================
+# 私钥和证书
+*.pem
+*.key
+*.crt
+*.p12
+
+# 上传文件目录
+uploads/
+storage/
