@@ -6,6 +6,7 @@ package repository
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,7 +15,8 @@ import (
 	"github.com/example/go-user-api/internal/config"
 	"github.com/example/go-user-api/internal/model"
 	"github.com/example/go-user-api/pkg/logger"
-	"gorm.io/driver/mysql"
+	"github.com/go-sql-driver/mysql"
+	gormmysql "gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
@@ -84,8 +86,17 @@ func NewDatabase(cfg *config.DatabaseConfig, log logger.Logger) (*Database, erro
 
 // initMySQL 初始化 MySQL 连接
 func initMySQL(cfg *config.DatabaseConfig, gormConfig *gorm.Config) (*gorm.DB, error) {
+	// 如果需要 TLS 连接（TiDB Cloud Serverless 需要）
+	if cfg.MySQL.TLS == "true" {
+		// 注册 TLS 配置，使用系统 CA 证书
+		mysql.RegisterTLSConfig("tidb", &tls.Config{
+			MinVersion: tls.VersionTLS12,
+			ServerName: cfg.MySQL.Host,
+		})
+	}
+
 	dsn := cfg.MySQL.DSN()
-	return gorm.Open(mysql.New(mysql.Config{
+	return gorm.Open(gormmysql.New(gormmysql.Config{
 		DSN:                       dsn,
 		DefaultStringSize:         256,   // string 类型字段的默认长度
 		DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持

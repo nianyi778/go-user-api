@@ -141,7 +141,10 @@ func (c *MySQLConfig) DSN() string {
 		c.Loc,
 	)
 	// 如果启用 TLS（TiDB Cloud 需要）
-	if c.TLS != "" {
+	// 使用 "tidb" 作为 TLS 配置名，在 database.go 中注册
+	if c.TLS == "true" {
+		dsn += "&tls=tidb"
+	} else if c.TLS != "" {
 		dsn += "&tls=" + c.TLS
 	}
 	return dsn
