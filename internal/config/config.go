@@ -291,6 +291,20 @@ func Load(configPath string) (*Config, error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
+	// 显式绑定数据库相关的环境变量（解决嵌套结构体绑定问题）
+	viper.BindEnv("database.driver", "APP_DATABASE_DRIVER")
+	viper.BindEnv("database.mysql.host", "APP_DATABASE_MYSQL_HOST")
+	viper.BindEnv("database.mysql.port", "APP_DATABASE_MYSQL_PORT")
+	viper.BindEnv("database.mysql.username", "APP_DATABASE_MYSQL_USERNAME")
+	viper.BindEnv("database.mysql.password", "APP_DATABASE_MYSQL_PASSWORD")
+	viper.BindEnv("database.mysql.database", "APP_DATABASE_MYSQL_DATABASE")
+	viper.BindEnv("database.mysql.charset", "APP_DATABASE_MYSQL_CHARSET")
+	viper.BindEnv("database.mysql.loc", "APP_DATABASE_MYSQL_LOC")
+	viper.BindEnv("database.mysql.parse_time", "APP_DATABASE_MYSQL_PARSE_TIME")
+	viper.BindEnv("database.mysql.tls", "APP_DATABASE_MYSQL_TLS")
+	viper.BindEnv("database.sqlite.path", "APP_DATABASE_SQLITE_PATH")
+	viper.BindEnv("jwt.secret", "APP_JWT_SECRET")
+
 	// 读取配置文件
 	if err := viper.ReadInConfig(); err != nil {
 		// 配置文件不存在时使用默认值，其他错误则返回
