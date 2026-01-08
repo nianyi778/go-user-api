@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Go User API</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #444;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .endpoints {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .endpoint {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .endpoint:last-child {
+            border-bottom: none;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+            margin-right: 15px;
+        }
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .put { background: #fca130; color: white; }
+        .delete { background: #f93e3e; color: white; }
+        .endpoint .path {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #333;
+            flex: 1;
+        }
+        .endpoint .path a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .endpoint .path a:hover {
+            text-decoration: underline;
+        }
+        .endpoint .desc {
+            color: #888;
+            font-size: 14px;
+        }
+        .badge {
+            background: #e9ecef;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        .badge.auth { background: #fff3cd; color: #856404; }
+        .badge.admin { background: #f8d7da; color: #721c24; }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .tech {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Go User API</h1>
+            <p class="subtitle">一个基于 Go 语言的用户管理 RESTful API</p>
+        </div>
+
+        <div class="section">
+            <h2>📡 系统端点</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path"><a href="/health">/health</a></span>
+                    <span class="desc">健康检查</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path"><a href="/ready">/ready</a></span>
+                    <span class="desc">就绪检查</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔐 认证端点</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/register</span>
+                    <span class="desc">用户注册</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/login</span>
+                    <span class="desc">用户登录</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/refresh</span>
+                    <span class="desc">刷新令牌</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>👤 用户端点</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users/me</span>
+                    <span class="desc">获取当前用户</span>
+                    <span class="badge auth">需要认证</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/v1/users/me</span>
+                    <span class="desc">更新当前用户</span>
+                    <span class="badge auth">需要认证</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/v1/users/me/password</span>
+                    <span class="desc">修改密码</span>
+                    <span class="badge auth">需要认证</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users</span>
+                    <span class="desc">用户列表</span>
+                    <span class="badge admin">管理员</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users/:id</span>
+                    <span class="desc">获取用户详情</span>
+                    <span class="badge auth">需要认证</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/v1/users/:id</span>
+                    <span class="desc">更新用户</span>
+                    <span class="badge admin">管理员</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/v1/users/:id</span>
+                    <span class="desc">删除用户</span>
+                    <span class="badge admin">管理员</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Version: {{.Version}} | Powered by Go + Gin + GORM</p>
+            <div class="tech-stack">
+                <span class="tech">Go 1.21</span>
+                <span class="tech">Gin</span>
+                <span class="tech">GORM</span>
+                <span class="tech">JWT</span>
+                <span class="tech">TiDB Cloud</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

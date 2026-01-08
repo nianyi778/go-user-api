@@ -15,6 +15,8 @@
 package router
 
 import (
+	"embed"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -29,6 +31,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+//go:embed templates/*
+var templatesFS embed.FS
 
 // Router 路由器结构
 // 封装了 Gin 引擎和所有依赖
@@ -204,71 +209,21 @@ func (r *Router) setupRoutes(h *Handlers, auth *middleware.AuthMiddleware) {
 
 // home 首页处理函数
 func (r *Router) home(c *gin.Context) {
+	// 解析嵌入的模板
+	tmpl, err := template.ParseFS(templatesFS, "templates/home.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "模板加载失败: %v", err)
+		return
+	}
+
+	// 渲染模板
 	c.Header("Content-Type", "text/html; charset=utf-8")
-	c.String(http.StatusOK, `<!DOCTYPE html>
-<html>
-<head>
-    <title>Go User API</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        h1 { color: #333; margin-bottom: 10px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
-        .endpoints { background: #f8f9fa; padding: 20px; border-radius: 8px; }
-        .endpoint { margin: 10px 0; font-family: monospace; }
-        .method {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .get { background: #61affe; color: white; }
-        .post { background: #49cc90; color: white; }
-        .put { background: #fca130; color: white; }
-        .delete { background: #f93e3e; color: white; }
-        a { color: #667eea; }
-        .footer { margin-top: 30px; color: #999; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 Go User API</h1>
-        <p class="subtitle">一个基于 Go 语言的用户管理 RESTful API</p>
-
-        <div class="endpoints">
-            <h3>📡 API 端点</h3>
-            <div class="endpoint"><span class="method get">GET</span> <a href="/health">/health</a> - 健康检查</div>
-            <div class="endpoint"><span class="method get">GET</span> <a href="/ready">/ready</a> - 就绪检查</div>
-            <div class="endpoint"><span class="method post">POST</span> /api/v1/auth/register - 用户注册</div>
-            <div class="endpoint"><span class="method post">POST</span> /api/v1/auth/login - 用户登录</div>
-            <div class="endpoint"><span class="method post">POST</span> /api/v1/auth/refresh - 刷新令牌</div>
-            <div class="endpoint"><span class="method get">GET</span> /api/v1/users/me - 获取当前用户</div>
-            <div class="endpoint"><span class="method put">PUT</span> /api/v1/users/me - 更新当前用户</div>
-            <div class="endpoint"><span class="method get">GET</span> /api/v1/users - 用户列表 (管理员)</div>
-        </div>
-
-        <div class="footer">
-            <p>📖 <a href="https://github.com/example/go-user-api">GitHub</a> |
-               Version: %s |
-               Powered by Go + Gin + GORM</p>
-        </div>
-    </div>
-</body>
-</html>`, r.config.App.Version)
+	data := map[string]interface{}{
+		"Version": r.config.App.Version,
+	}
+	if err := tmpl.Execute(c.Writer, data); err != nil {
+		c.String(http.StatusInternalServerError, "模板渲染失败: %v", err)
+	}
 }
 
 // healthCheck 健康检查处理函数
