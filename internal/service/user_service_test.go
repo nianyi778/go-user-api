@@ -10,6 +10,7 @@ import (
 
 	"github.com/example/go-user-api/internal/config"
 	"github.com/example/go-user-api/internal/model"
+	"github.com/example/go-user-api/internal/repository"
 	"github.com/example/go-user-api/pkg/errors"
 	"github.com/example/go-user-api/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func (m *MockUserRepository) HardDelete(ctx context.Context, id string) error {
 	return args.Error(0)
 }
 
-func (m *MockUserRepository) List(ctx context.Context, opts interface{}) ([]model.User, int64, error) {
+func (m *MockUserRepository) List(ctx context.Context, opts *repository.UserListOptions) ([]model.User, int64, error) {
 	args := m.Called(ctx, opts)
 	if args.Get(0) == nil {
 		return nil, 0, args.Error(2)
@@ -281,12 +282,12 @@ func TestUserService_Login_Success(t *testing.T) {
 	cfg := newTestConfig()
 	log := newTestLogger()
 	jwtService := NewJWTService(&cfg.JWT)
-	userService := NewUserService(mockRepo, jwtService, cfg, log)
+	usrService := NewUserService(mockRepo, jwtService, cfg, log)
 
 	ctx := context.Background()
 
 	// 创建一个真实的哈希密码用于测试
-	svc := userService.(*userService)
+	svc := usrService.(*userService)
 	hashedPassword, _ := svc.hashPassword("password123")
 
 	testUser := &model.User{
@@ -312,7 +313,7 @@ func TestUserService_Login_Success(t *testing.T) {
 	mockRepo.On("UpdateLastLogin", ctx, "test-user-id", "127.0.0.1").Return(nil)
 
 	// 执行
-	resp, err := userService.Login(ctx, req, "127.0.0.1")
+	resp, err := usrService.Login(ctx, req, "127.0.0.1")
 
 	// 断言
 	assert.NoError(t, err)
@@ -360,11 +361,11 @@ func TestUserService_Login_WrongPassword(t *testing.T) {
 	cfg := newTestConfig()
 	log := newTestLogger()
 	jwtService := NewJWTService(&cfg.JWT)
-	userService := NewUserService(mockRepo, jwtService, cfg, log)
+	usrService := NewUserService(mockRepo, jwtService, cfg, log)
 
 	ctx := context.Background()
 
-	svc := userService.(*userService)
+	svc := usrService.(*userService)
 	hashedPassword, _ := svc.hashPassword("correctpassword")
 
 	testUser := &model.User{
@@ -385,7 +386,7 @@ func TestUserService_Login_WrongPassword(t *testing.T) {
 	mockRepo.On("GetByUsernameOrEmail", ctx, "testuser").Return(testUser, nil)
 
 	// 执行
-	resp, err := userService.Login(ctx, req, "127.0.0.1")
+	resp, err := usrService.Login(ctx, req, "127.0.0.1")
 
 	// 断言
 	assert.Error(t, err)
@@ -583,11 +584,11 @@ func TestUserService_UpdatePassword_Success(t *testing.T) {
 	cfg := newTestConfig()
 	log := newTestLogger()
 	jwtService := NewJWTService(&cfg.JWT)
-	userService := NewUserService(mockRepo, jwtService, cfg, log)
+	usrService := NewUserService(mockRepo, jwtService, cfg, log)
 
 	ctx := context.Background()
 
-	svc := userService.(*userService)
+	svc := usrService.(*userService)
 	hashedPassword, _ := svc.hashPassword("oldpassword")
 
 	testUser := &model.User{
@@ -610,7 +611,7 @@ func TestUserService_UpdatePassword_Success(t *testing.T) {
 	mockRepo.On("UpdatePassword", ctx, "test-user-id", mock.AnythingOfType("string")).Return(nil)
 
 	// 执行
-	err := userService.UpdatePassword(ctx, "test-user-id", req)
+	err := usrService.UpdatePassword(ctx, "test-user-id", req)
 
 	// 断言
 	assert.NoError(t, err)
@@ -624,11 +625,11 @@ func TestUserService_UpdatePassword_WrongOldPassword(t *testing.T) {
 	cfg := newTestConfig()
 	log := newTestLogger()
 	jwtService := NewJWTService(&cfg.JWT)
-	userService := NewUserService(mockRepo, jwtService, cfg, log)
+	usrService := NewUserService(mockRepo, jwtService, cfg, log)
 
 	ctx := context.Background()
 
-	svc := userService.(*userService)
+	svc := usrService.(*userService)
 	hashedPassword, _ := svc.hashPassword("correctoldpassword")
 
 	testUser := &model.User{
@@ -650,7 +651,7 @@ func TestUserService_UpdatePassword_WrongOldPassword(t *testing.T) {
 	mockRepo.On("GetByID", ctx, "test-user-id").Return(testUser, nil)
 
 	// 执行
-	err := userService.UpdatePassword(ctx, "test-user-id", req)
+	err := usrService.UpdatePassword(ctx, "test-user-id", req)
 
 	// 断言
 	assert.Error(t, err)
