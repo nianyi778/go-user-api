@@ -41,12 +41,12 @@ const (
 	CodeTooManyReqs   = 10008 // 请求过于频繁
 
 	// 认证相关错误码 (1xxxx)
-	CodeInvalidToken     = 11001 // 无效的令牌
-	CodeTokenExpired     = 11002 // 令牌已过期
-	CodeInvalidPassword  = 11003 // 密码错误
+	CodeInvalidToken      = 11001 // 无效的令牌
+	CodeTokenExpired      = 11002 // 令牌已过期
+	CodeInvalidPassword   = 11003 // 密码错误
 	CodeInvalidCredential = 11004 // 无效的凭证
-	CodeTokenMalformed   = 11005 // 令牌格式错误
-	CodeTokenNotFound    = 11006 // 令牌不存在
+	CodeTokenMalformed    = 11005 // 令牌格式错误
+	CodeTokenNotFound     = 11006 // 令牌不存在
 
 	// 用户相关错误码 (2xxxx)
 	CodeUserNotFound      = 20001 // 用户不存在
@@ -70,9 +70,9 @@ const (
 	CodeResourceLocked   = 40003 // 资源已锁定
 
 	// 数据库相关错误码 (5xxxx)
-	CodeDatabaseError    = 50001 // 数据库错误
-	CodeDatabaseTimeout  = 50002 // 数据库超时
-	CodeDuplicateEntry   = 50003 // 重复条目
+	CodeDatabaseError   = 50001 // 数据库错误
+	CodeDatabaseTimeout = 50002 // 数据库超时
+	CodeDuplicateEntry  = 50003 // 重复条目
 )
 
 // AppError 应用程序错误类型
@@ -355,6 +355,16 @@ var (
 		Code:       CodeFieldRequired,
 		HTTPStatus: http.StatusBadRequest,
 		Message:    "必填字段缺失",
+	}
+)
+
+// 资源相关错误
+var (
+	// ErrResourceNotFound 资源不存在
+	ErrResourceNotFound = &AppError{
+		Code:       CodeResourceNotFound,
+		HTTPStatus: http.StatusNotFound,
+		Message:    "请求的资源不存在",
 	}
 )
 

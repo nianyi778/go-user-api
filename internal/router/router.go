@@ -93,24 +93,28 @@ func (r *Router) Setup() *gin.Engine {
 
 // Repositories 仓储层集合
 type Repositories struct {
-	User repository.UserRepository
+	User            repository.UserRepository
+	RiskReportUsage repository.RiskReportUsageRepository
 }
 
 // Services 服务层集合
 type Services struct {
-	User service.UserService
-	JWT  service.JWTService
+	User            service.UserService
+	JWT             service.JWTService
+	RiskReportUsage service.RiskReportUsageService
 }
 
 // Handlers 处理器集合
 type Handlers struct {
-	User *handler.UserHandler
+	User            *handler.UserHandler
+	RiskReportUsage *handler.RiskReportUsageHandler
 }
 
 // initRepositories 初始化仓储层
 func (r *Router) initRepositories() *Repositories {
 	return &Repositories{
-		User: repository.NewUserRepository(r.db),
+		User:            repository.NewUserRepository(r.db),
+		RiskReportUsage: repository.NewRiskReportUsageRepository(r.db),
 	}
 }
 
@@ -118,17 +122,20 @@ func (r *Router) initRepositories() *Repositories {
 func (r *Router) initServices(repos *Repositories) *Services {
 	jwtService := service.NewJWTService(&r.config.JWT)
 	userService := service.NewUserService(repos.User, jwtService, r.config, r.log)
+	riskReportUsageService := service.NewRiskReportUsageService(repos.RiskReportUsage, r.log)
 
 	return &Services{
-		User: userService,
-		JWT:  jwtService,
+		User:            userService,
+		JWT:             jwtService,
+		RiskReportUsage: riskReportUsageService,
 	}
 }
 
 // initHandlers 初始化处理器
 func (r *Router) initHandlers(services *Services) *Handlers {
 	return &Handlers{
-		User: handler.NewUserHandler(services.User, r.log),
+		User:            handler.NewUserHandler(services.User, r.log),
+		RiskReportUsage: handler.NewRiskReportUsageHandler(services.RiskReportUsage, r.log),
 	}
 }
 
@@ -197,6 +204,20 @@ func (r *Router) setupRoutes(h *Handlers, auth *middleware.AuthMiddleware) {
 			usersGroup.GET("/:id", auth.RequireAuth(), h.User.GetUser)
 			usersGroup.PUT("/:id", auth.RequireAuth(), auth.RequireAdmin(), h.User.UpdateUser)
 			usersGroup.DELETE("/:id", auth.RequireAuth(), auth.RequireAdmin(), h.User.DeleteUser)
+		}
+
+		// 风险报告使用记录路由（需要 API Key 认证）
+		apiKeyMiddleware := middleware.NewAPIKeyMiddleware(r.config, r.log)
+		riskReportGroup := v1.Group("/risk-report")
+		riskReportGroup.Use(apiKeyMiddleware.RequireAPIKey())
+		{
+			// 使用记录上报
+			riskReportGroup.POST("/usage", h.RiskReportUsage.Create)
+			riskReportGroup.POST("/usage/batch", h.RiskReportUsage.BatchCreate)
+			// 查询接口（可选，用于数据分析）
+			riskReportGroup.GET("/usage", h.RiskReportUsage.List)
+			riskReportGroup.GET("/usage/:id", h.RiskReportUsage.GetByID)
+			riskReportGroup.GET("/usage/stats/:user_id", h.RiskReportUsage.GetUserStats)
 		}
 	}
 

@@ -32,6 +32,7 @@ type Config struct {
 	Security   SecurityConfig   `mapstructure:"security"`
 	RateLimit  RateLimitConfig  `mapstructure:"rate_limit"`
 	Pagination PaginationConfig `mapstructure:"pagination"`
+	RiskReport RiskReportConfig `mapstructure:"risk_report"`
 }
 
 // AppConfig 应用程序基本配置
@@ -266,6 +267,12 @@ type PaginationConfig struct {
 	MaxPageSize int `mapstructure:"max_page_size"`
 }
 
+// RiskReportConfig 风险报告配置
+type RiskReportConfig struct {
+	// APIKeys 允许的 API Keys 列表（用于外部服务调用）
+	APIKeys []string `mapstructure:"api_keys"`
+}
+
 // Load 加载配置文件
 // configPath 是配置文件的路径，如果为空则使用默认路径
 func Load(configPath string) (*Config, error) {
@@ -392,6 +399,9 @@ func setDefaults() {
 	// 分页默认配置
 	viper.SetDefault("pagination.default_page_size", 20)
 	viper.SetDefault("pagination.max_page_size", 100)
+
+	// 风险报告默认配置
+	viper.SetDefault("risk_report.api_keys", []string{})
 }
 
 // Validate 验证配置的有效性

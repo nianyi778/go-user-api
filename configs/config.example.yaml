@@ -122,3 +122,12 @@ pagination:
   default_page_size: 10
   # 最大每页数量
   max_page_size: 100
+
+# ----------------
+# 风险报告配置
+# ----------------
+risk_report:
+  # API Keys 列表（用于外部服务调用，如 risk-report 项目）
+  api_keys:
+    - "risk-report-prod-key-replace-with-your-key"
+    # - "risk-report-dev-key-another-key"

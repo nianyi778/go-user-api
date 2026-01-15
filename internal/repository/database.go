@@ -143,6 +143,7 @@ func autoMigrate(db *gorm.DB) error {
 	// 在这里添加所有需要迁移的模型
 	return db.AutoMigrate(
 		&model.User{},
+		&model.RiskReportUsage{},
 		// 添加其他模型...
 	)
 }
@@ -187,9 +188,9 @@ func (d *Database) Stats() (map[string]interface{}, error) {
 
 // gormLogger GORM 日志适配器
 type gormLogger struct {
-	log       logger.Logger
+	log           logger.Logger
 	slowThreshold time.Duration
-	logLevel  gormlogger.LogLevel
+	logLevel      gormlogger.LogLevel
 }
 
 // newGormLogger 创建 GORM 日志适配器
@@ -263,8 +264,6 @@ func (l *gormLogger) Trace(_ context.Context, begin time.Time, fc func() (sql st
 		l.log.Debug("SQL执行", fields...)
 	}
 }
-
-
 
 // Transaction 执行事务
 // 在回调函数中执行的所有数据库操作都在同一个事务中
