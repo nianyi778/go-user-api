@@ -101,6 +101,7 @@
         }
         .badge.auth { background: #fff3cd; color: #856404; }
         .badge.admin { background: #f8d7da; color: #721c24; }
+        .badge.apikey { background: #d1ecf1; color: #0c5460; }
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -220,6 +221,42 @@
                     <span class="path">/api/v1/users/:id</span>
                     <span class="desc">删除用户</span>
                     <span class="badge admin">管理员</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 风险报告端点</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/risk-report/usage</span>
+                    <span class="desc">上报使用记录</span>
+                    <span class="badge apikey">需要 API Key</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/risk-report/usage/batch</span>
+                    <span class="desc">批量上报</span>
+                    <span class="badge apikey">需要 API Key</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/risk-report/usage</span>
+                    <span class="desc">查询使用记录</span>
+                    <span class="badge apikey">需要 API Key</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/risk-report/usage/:id</span>
+                    <span class="desc">查询记录详情</span>
+                    <span class="badge apikey">需要 API Key</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/risk-report/usage/stats/:user_id</span>
+                    <span class="desc">用户统计</span>
+                    <span class="badge apikey">需要 API Key</span>
                 </div>
             </div>
         </div>
